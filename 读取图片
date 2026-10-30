@@ -1,0 +1,24 @@
+import time
+import os
+import cv2
+import concurrent.futures
+DATA_DIR = r"E:\vscode\data" 
+def read_img(file_name):
+    file_path=os.path.join(DATA_DIR,file_name)
+    img=cv2.imread(file_path)
+    return img.shape if img is not None else None
+if __name__ == '__main__':
+    img_files = os.listdir(DATA_DIR)
+    img_files=[f for f in img_files if f.endswith(('.png','.jpg','.webp','.jepg')) ]
+    start_time=time.time()
+    for img_file in img_files:
+        read_img(img_file)
+    print(f"单线程耗时:{time.time()-start_time:.10f}秒")
+    start_time=time.time()
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        list(executor.map(read_img, img_files))
+    print(f"多线程耗时:{time.time()-start_time:.10f}秒")
+    start_time=time.time()
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        list(executor.map(read_img, img_files))
+    print(f"多进程耗时:{time.time()-start_time:.10f}秒")

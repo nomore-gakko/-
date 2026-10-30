@@ -1,0 +1,36 @@
+import time
+import math
+import concurrent.futures
+def calc_chunk(start,end):
+    total_sqrt=0.0
+    total_square=0.0
+    for i in range(start,end):
+        total_sqrt+=math.sqrt(i)
+        total_square+=i**2
+    return total_square,total_sqrt
+def _calc_chunk_wrapper(p):
+    return calc_chunk(p[0], p[1])
+if __name__=='__main__':
+    start_num=1
+    end_num=10000000
+    num_workers=4
+    chunk_size=(end_num-start_num)//num_workers
+    chunks=[]
+    for i in range(num_workers):
+        start=start_num+chunk_size*i
+        if i<num_workers-1:
+            end=start+chunk_size
+        else:
+            end=end_num
+        chunks.append((start,end))
+    start_time=time.time()
+    result_1=calc_chunk(start_num,end_num)
+    print(f"单线程耗时:{time.time()-start_time:.10f}秒")
+    start_time=time.time()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_workers) as executor:
+        result_2=list(executor.map(lambda p: calc_chunk(p[0], p[1]), chunks))
+    print(f"多线程耗时:{time.time()-start_time:.10f}秒")
+    start_time=time.time()
+    with concurrent.futures.ProcessPoolExecutor(max_workers=num_workers) as executor:
+        result_3=list(executor.map(_calc_chunk_wrapper, chunks))
+    print(f"多进程耗时: {time.time() - start_time:.10f} 秒")

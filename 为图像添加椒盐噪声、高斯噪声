@@ -1,0 +1,36 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+plt.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['axes.unicode_minus'] = False
+img=cv2.imread(r"E:\vscode\OIP-C.webp")
+img=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+noise_image1=img.copy()
+h,w,c=noise_image1.shape
+num_noise=1000
+for _ in range(num_noise):
+    x=np.random.randint(0,h)
+    y=np.random.randint(0,w)
+    if np.random.rand()<0.5:
+        noise_image1[x,y]=[0,0,0]
+    else:
+        noise_image1[x,y]=[255,255,255]
+mean=0
+sigma=25
+noise_image2=img.copy()
+noise_image2=noise_image2.astype(np.float32)+np.random.normal(mean,sigma,(h,w,c))
+noise_image2=np.clip(noise_image2,0,255).astype(np.uint8)
+plt.figure(figsize=(12,4))
+plt.subplot(1,3,1)
+plt.title("原图")
+plt.imshow(img)
+plt.axis("off")
+plt.subplot(1,3,2)
+plt.title("椒盐噪声")
+plt.imshow(noise_image1)
+plt.axis("off")
+plt.subplot(1,3,3)
+plt.title("高斯噪声")
+plt.imshow(noise_image2)
+plt.axis("off")
+plt.show()
